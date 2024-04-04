@@ -47,6 +47,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Value: 0
+  LocatedNode: {fileID: 0}
+  Merging: 0
   _renderer: {fileID: 1388482490183907282}
   _text: {fileID: 67249798564049620}
 --- !u!1 &1562799743811718796

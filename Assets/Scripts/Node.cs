@@ -5,6 +5,6 @@ using UnityEngine;
 
 public class Node : MonoBehaviour
 {
-    public Vector2 Center{get {return transform.position;}}
-    public Block Occupied;
+    public Vector2 Pos{get {return transform.position;}}
+    public Block OccupiedBlock;
 }
