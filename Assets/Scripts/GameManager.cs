@@ -23,19 +23,23 @@ public class GameManager : MonoBehaviour
     [SerializeField] private List<BlockType> _blockTypes;
     [SerializeField] private GameObject _victoryScreen;
     [SerializeField] private GameObject _loseScreen;
+    [SerializeField] private GameObject _selectScreen;
+    [SerializeField] private GameObject _inGameUI;
     
+    //Getter Setter
+    public List<BlockType> BlockTypes{get {return _blockTypes;}}
 
     //Animation parameters
     [SerializeField] private float _travelTime = 0.2f;
     [SerializeField] private float _fadeTime = 0.2f;
 
     //Data parameters    
-    [SerializeField]private int _objective = 2048;
+    public int Objective;
     private List<Node> _nodes;
     private List<int> _blocksPlacementNew;
     private List<int> _blocksPlacementOld;
     private List<Block> _blocks;
-    private GameState _state;
+    public GameState State;
     private int _moves;
 
 
@@ -48,12 +52,12 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        ChangeState(GameState.LevelGeneration);
+        ChangeState(GameState.SelectObjective);
     }
 
     void Update()
     {
-        if(_state == GameState.WaitForInput) GetInput();
+        if(State == GameState.WaitForInput) GetInput();
     }
 
     #region Initialize Function
@@ -110,9 +114,8 @@ public class GameManager : MonoBehaviour
             var availableMove = _blocks.FirstOrDefault(b => b.MergableNearby() == true);
             if(availableMove == null) ChangeState(GameState.Lose);
         }
+        ChangeState(GameState.WaitForInput);
         
-        //Victory condition check
-        ChangeState(_blocks.Any(b => b.Value == _objective) ? GameState.Victory : GameState.WaitForInput);
     }
 
     private void SpawningFunc(Node node, int value)
@@ -169,7 +172,10 @@ public class GameManager : MonoBehaviour
         var valid = ValidMoveCheck(_blocksPlacementNew, _blocksPlacementOld);
         if(valid){
             _moves ++;
-            ChangeState(GameState.BlockSpawning);
+
+            //Victory condition check
+            ChangeState(_blocks.Any(b => b.Value == Objective) ? GameState.Victory : GameState.BlockSpawning);
+
         }else
         {
             ChangeState(GameState.WaitForInput);
@@ -245,7 +251,7 @@ public class GameManager : MonoBehaviour
     void MergeAllBlocks(Block movingBlock, Block baseBlock)
     {
         var newValue = baseBlock.Value * 2;
-        SpawningFunc(baseBlock.LocatedNode, newValue);
+        SpawningFunc(GetNodeByPos(baseBlock.Pos), newValue);
 
         //remove both blocks then instantiate upgraded block
         RemoveBlock(movingBlock);
@@ -293,11 +299,15 @@ public class GameManager : MonoBehaviour
     #region GameState Manager
     public void ChangeState(GameState newState)
     {
-        _state = newState;
+        State = newState;
 
         switch (newState)
         {
+            case GameState.SelectObjective:
+                _selectScreen.SetActive(true);
+                break;
             case GameState.LevelGeneration:
+                _inGameUI.SetActive(true);
                 PlayBoardSetup();
                 break;
             case GameState.BlockSpawning:
@@ -324,6 +334,7 @@ public class GameManager : MonoBehaviour
 
 public enum GameState
 {
+SelectObjective,
 LevelGeneration,
 BlockSpawning,
 WaitForInput,
