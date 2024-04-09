@@ -99,6 +99,8 @@ public class GameManager : MonoBehaviour
     #region Block Spawn Function
     void SpawnBlocks(int amount)
     {
+        
+
         //Get the List<Node> where it is not yet occupied, also randomize it
         var freeNodes = _nodes.Where(n => n.OccupiedBlock == null).OrderBy(b => Random.value).ToList();
 
@@ -114,7 +116,8 @@ public class GameManager : MonoBehaviour
             var availableMove = _blocks.FirstOrDefault(b => b.MergableNearby() == true);
             if(availableMove == null) ChangeState(GameState.Lose);
         }
-        ChangeState(GameState.WaitForInput);
+
+        ChangeState(_blocks.Any(b => b.Value == Objective)? GameState.Victory : GameState.WaitForInput);
         
     }
 
@@ -167,14 +170,12 @@ public class GameManager : MonoBehaviour
 
         //Get the current block placement
         GetBlockPlacement(_nodes, _blocksPlacementNew);
-        
+
         //Validity check for new block to spawn
         var valid = ValidMoveCheck(_blocksPlacementNew, _blocksPlacementOld);
         if(valid){
             _moves ++;
-
-            //Victory condition check
-            ChangeState(_blocks.Any(b => b.Value == Objective) ? GameState.Victory : GameState.BlockSpawning);
+            ChangeState( GameState.BlockSpawning);
 
         }else
         {
@@ -220,7 +221,7 @@ public class GameManager : MonoBehaviour
                 {
                     value = 0;
                 }else{
-                    value = nodes[i].OccupiedBlock.Value;
+                    value = block.Value;
                 }
                 container[i] = value;
         }
@@ -250,12 +251,14 @@ public class GameManager : MonoBehaviour
 
     void MergeAllBlocks(Block movingBlock, Block baseBlock)
     {
-        var newValue = baseBlock.Value * 2;
-        SpawningFunc(GetNodeByPos(baseBlock.Pos), newValue);
-
         //remove both blocks then instantiate upgraded block
         RemoveBlock(movingBlock);
         RemoveBlock(baseBlock);
+
+        var newValue = baseBlock.Value * 2;
+        SpawningFunc(GetNodeByPos(baseBlock.Pos), newValue);
+
+        
     }
 
     void RemoveBlock(Block block)
