@@ -1,5 +1,5 @@
 # Puzzle Game 2048
- Practice of the famous causual game 2048
+ Practice of the famous casual game 2048
 
 # Added difficulity selection:
 
